@@ -9,14 +9,23 @@ on:
     branches:
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: https://adb-7405605185991044.4.azuredatabricks.net
+      DATABRICSK_CLIENT_ID: 0fbc6566-282b-47bf-9122-11f99addc705
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: databricks/setup-cli@main
+      - name: Install CLI
+        uses: databricks/setup-cli@main
 
       - run: databricks current-user me
 
