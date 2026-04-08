@@ -1,0 +1,25 @@
+name: dev-deploy.yml
+on:
+
+  push:
+    branches:
+      - "dev/*"
+  pull_request_review:
+    types: [edited, submitted]
+    branches:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: databricks/setup-cli@main
+
+      - run: databricks current-user me
+
+      - run: databricks bundle validate --target dev
+
+      - run: databricks pipelines deploy --target dev
