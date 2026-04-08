@@ -1,0 +1,42 @@
+bundle:
+  name: formula_one
+  uuid: 75f3984d-9bc7-410e-9590-f9a8ca0ee119
+
+sync:
+  include:
+    - resources/*.yml
+  exclude:
+    - .idea/**
+    - .vscode/**
+    - .git/**
+
+variables:
+  catalog:
+    description: The catalog to use
+  schema:
+    description: The schema to use
+
+targets:
+  # dev mode -----------
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405605185991044.4.azuredatabricks.net
+      root_path: /Workspace/Users/tr3e1t0ry@softserve.academy/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: dbr_dev
+      schema: tokariev_bronze
+    presets:
+      artifacts_dynamic_version: true
+  # test mode ----------
+  test:
+    workspace:
+      host: https://adb-7405605185991044.4.azuredatabricks.net
+      root_path: /Workspace/Users/tr3e1t0ry@softserve.academy/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: dbr_dev
+      schema: tokariev_bronze
+    permissions:
+      - user_name: tr3e1t0ry@softserve.academy
+        level: CAN_MANAGE
