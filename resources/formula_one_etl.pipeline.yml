@@ -15,7 +15,7 @@ resources:
 
       environment:
         dependencies:
-          - --editable ${workspace.file_path}
+          - --editable
           -
   clusters:
     default_f4_single_node:
