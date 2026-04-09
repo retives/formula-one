@@ -2,13 +2,10 @@ bundle:
   name: formula_one
   uuid: 75f3984d-9bc7-410e-9590-f9a8ca0ee119
 
-sync:
-  include:
-    - resources/*.yml
-  exclude:
-    - .idea/**
-    - .vscode/**
-    - .git/**
+
+include:
+  - resources/*.yml
+
 
 variables:
   catalog:
