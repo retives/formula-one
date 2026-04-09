@@ -1,4 +1,7 @@
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DateType, BooleanType
+from pyasn1.type.univ import Boolean
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DateType, BooleanType, FloatType, \
+    DecimalType, ArrayType, TimestampType
+
 
 #---------------
 #   Passive data schemas
@@ -52,9 +55,9 @@ meetings_schema = StructType([
     StructField('country_code', StringType()),
     StructField('country_key', IntegerType()),
 
-    StructField('date_start', DateType()),
-    StructField('date_end', DateType()),
-    StructField('gmt_offset', DateType()),
+    StructField('date_start', TimestampType()),
+    StructField('date_end', TimestampType()),
+    StructField('gmt_offset', TimestampType()),
     StructField('location', StringType()),
 
     StructField('year', IntegerType(), False),
@@ -70,9 +73,9 @@ sessions_schema = StructType([
     StructField('country_code', StringType()),
     StructField('country_key', IntegerType()),
 
-    StructField('date_start', DateType()),
-    StructField('date_end', DateType()),
-    StructField('gmt_offset', DateType()),
+    StructField('date_start', TimestampType()),
+    StructField('date_end', TimestampType()),
+    StructField('gmt_offset', TimestampType()),
     StructField('location', StringType()),
 
     StructField('session_name', StringType()),
@@ -105,3 +108,77 @@ starting_grid_schema = StructType([
 #---------------
 #   Active data schemas
 #---------------
+
+laps_schema = StructType([
+    StructField('date_start', TimestampType()),
+    StructField('driver_number', StringType()),
+    StructField('duration_sector_1', DecimalType()),
+    StructField('duration_sector_2', DecimalType()),
+    StructField('duration_sector_3', DecimalType()),
+    StructField('i1_speed', IntegerType()),
+    StructField('i2_speed', IntegerType()),
+    StructField('is_pit_out_lap', BooleanType()),
+    StructField('lap_duration', DecimalType()),
+    StructField('lap_number', IntegerType()),
+    StructField('i1_speed', IntegerType()),
+    StructField('meeting_key', IntegerType()), False,
+    StructField('session_key', IntegerType()), False,
+    StructField('duration_sector_1', DecimalType(10, 3)),
+    StructField('segments_sector_1', ArrayType(IntegerType())),
+    StructField('segments_sector_2', ArrayType(IntegerType())),
+    StructField('segments_sector_3', ArrayType(IntegerType())),
+    StructField('st_speed', IntegerType()),
+])
+
+overtakes_schema = StructType([
+    StructField('date', TimestampType()),
+    StructField('meeting_key', IntegerType()), False,
+    StructField('session_key', IntegerType()), False,
+    StructField('overtaken_driver_number', IntegerType()),
+    StructField('overtaking_driver_number', IntegerType()),
+    StructField('position', IntegerType()),
+
+])
+pit_stop_schema = StructType([
+    StructField("date", TimestampType(), True),
+    StructField("driver_number", IntegerType(), True),
+    StructField("lane_duration", DecimalType(10, 3), True),
+    StructField("lap_number", IntegerType(), True),
+    StructField("meeting_key", StringType(), False),
+    StructField("pit_duration", DecimalType(10, 3), True),
+    StructField("session_key", StringType(), False),
+    StructField("stop_duration", DecimalType(10, 3), True)
+])
+position_schema = StructType([
+    StructField("date", TimestampType(), True),
+    StructField("driver_number", IntegerType(), True),
+    StructField('meeting_key', IntegerType()), False,
+    StructField('session_key', IntegerType()), False,
+    StructField("position", IntegerType()),
+])
+
+race_control_schema = StructType([
+    StructField("date", TimestampType(), True),
+    StructField("driver_number", IntegerType(), True),
+    StructField("flag", StringType(), True),
+    StructField("lap_number", IntegerType(), True),
+    StructField("meeting_key", StringType(), False),
+    StructField("session_key", StringType(), False),
+    StructField("message", StringType(), True),
+    StructField("qualifying_phase", IntegerType(), True),
+    StructField("scope", StringType(), True),
+    StructField("sector", IntegerType(), True),
+])
+
+weather_schema = StructType([
+    StructField("date", TimestampType(), True),
+    StructField("meeting_key", StringType(), False),
+    StructField("session_key", StringType(), False),
+    StructField("air_temperature", FloatType(), True),
+    StructField("humidity", FloatType(), True),
+    StructField("pressure", FloatType(), True),
+    StructField("rainfall", IntegerType(), True),
+    StructField("track_temperature", FloatType(), True),
+    StructField("wind_direction", IntegerType(), True),
+    StructField("wind_speed", FloatType(), True),
+])
