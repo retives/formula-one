@@ -9,12 +9,14 @@ resources:
       root_path: "../src/formula_one_etl"
 
       libraries:
-        - glob:
-            include: ../src/formula_one_etl/transformations/**
+        - file:
+            path: "../src/formula_one_etl/transformations/bronze/*.py"
+
 
       environment:
         dependencies:
           - --editable ${workspace.file_path}
+          -
   clusters:
     default_f4_single_node:
       cluster_name: "Formula One F4 Cluster"
