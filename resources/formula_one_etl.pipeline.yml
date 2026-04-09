@@ -19,6 +19,7 @@ resources:
           -
   clusters:
     default_f4_single_node:
+      spark_version: 16.4.x-scala2.12
       cluster_name: "Formula One F4 Cluster"
       node_type_id: "Standard_F4"
       num_workers: 0
