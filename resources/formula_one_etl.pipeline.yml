@@ -12,10 +12,10 @@ resources:
         - file:
             path: "../src/formula_one_etl/transformations/bronze/*.py"
 
+      # environment:
+      #   dependencies:
+      #     - --editable .
 
-      environment:
-        dependencies:
-          - --editable .
       clusters:
         - label: "default"
           node_type_id: "Standard_F4"
@@ -24,4 +24,5 @@ resources:
             "spark.databricks.cluster.profile": "singleNode"
             "spark.master": "local[*]"
           custom_tags:
+
             "ResourceClass": "SingleNode"

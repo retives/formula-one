@@ -1,4 +1,7 @@
 import requests
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.getOrCreate()
+
 BASE_URL = "https://api.openf1.org/v1"
 ENDPOINTS = {
     "meetings": f"{BASE_URL}/meetings",
@@ -18,5 +21,6 @@ def ingest_data(url:str):
         print(f"Error occurred, data won't be loaded correctly. Status code - {response.status_code}")
 
     data = response.json()
-    df = spark.createDataFramee(data)
+    print(data)
+    df = spark.createDataFrame(data)
     return df

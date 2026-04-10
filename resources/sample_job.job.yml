@@ -38,3 +38,4 @@ resources:
               "spark.master": "local[*]"
             custom_tags:
               "ResourceClass": "SingleNode"
+
