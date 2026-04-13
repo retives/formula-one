@@ -2,8 +2,8 @@
 
 resources:
   jobs:
-    sample_job:
-      name: sample_job
+    active_job:
+      name: active_job
 
       trigger:
         # Run this job every day, exactly one day from the last run; see https://docs.databricks.com/api/workspace/jobs/create#trigger
@@ -15,21 +15,10 @@ resources:
       #  on_failure:
       #    - your_email@example.com
 
-      parameters:
-        - name: catalog
-          default: ${var.catalog}
-        - name: schema
-          default: ${var.schema}
-
-      tasks:
-        - task_key: refresh_pipeline
-          pipeline_task:
-            pipeline_id: ${resources.pipelines.formula_one_etl.id}
-
       job_clusters:
         - job_cluster_key: job_cluster
           new_cluster:
-            spark_version: "16.4.x-scala2.12"
+            spark_version: "17.3.x-scala2.13"
             node_type_id: "Standard_F4"
             num_workers: 0
             data_security_mode: "SINGLE_USER"
@@ -38,4 +27,24 @@ resources:
               "spark.master": "local[*]"
             custom_tags:
               "ResourceClass": "SingleNode"
+
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: schema
+          default: ${var.schema}
+
+      tasks:
+        - task_key: data_load
+          job_cluster_key: job_cluster
+          spark_python_task:
+            python_file: "../src/formula_one_etl/transformations/bronze/load_data.py"
+
+        - task_key: active_ingestion
+          depends_on: 
+            - task_key: data_load
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.formula_one_active_etl.id}   
+
+      
 
