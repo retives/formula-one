@@ -130,7 +130,7 @@ laps_schema = StructType([
 ])
 
 overtakes_schema = StructType([
-    StructField('date', TimestampType()),
+    StructField('date', StringType()),
     StructField('meeting_key', IntegerType(), False),
     StructField('session_key', IntegerType(), False),
     StructField('overtaken_driver_number', IntegerType()),
