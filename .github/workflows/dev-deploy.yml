@@ -1,12 +1,13 @@
 name: dev-deploy.yml
 on:
 
-  push:
-    branches:
-      - "dev/*"
+  # push:
+  #   branches:
+  #     - "dev/*"
   pull_request_review:
     types: [edited, submitted]
     branches:
+      - "main"
   workflow_dispatch:
 
 permissions:
