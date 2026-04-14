@@ -3,109 +3,103 @@ import json
 import os
 import time
 from datetime import datetime, timezone
+from pyspark.sql import SparkSession
+
 # --- CONFIGURATION ---
 BASE_URL = "https://api.openf1.org/v1"
 VOLUME_PATH = "/Volumes/dbr_dev/tokariev_raw/openf1_data"
+RATE_LIMIT_SLEEP = 2.5
 
-# Endpoints we want to ingest
-ENDPOINTS = [
-    "championship_drivers",
-    "sessions",
-    "championship_teams",
-    "drivers",
-    "session_result",
-    "meetings",
-]
 
-http = requests.Session()
 
-def get_utc_now_iso():
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+spark = SparkSession.builder.getOrCreate()
 
-def get_latest_keys():
+def get_target_session():
     """
-    Resolves the actual latest meeting and its primary Race session.
-    F1 'latest' can be buggy, so we fetch the meeting then find the sessions.
+    Reads the calendar table and finds the session closest to 'now' 
+    that has already started.
     """
-    print("Resolving latest meeting and session keys...")
+    now = datetime.now(timezone.utc).isoformat()
     
-    m_resp = http.get(f"{BASE_URL}/meetings?meeting_key=latest")
-    m_resp.raise_for_status()
-    meeting_key = m_resp.json()[0]['meeting_key']
+    query = """
+        SELECT meeting_key, session_key 
+        FROM dbr_dev.tokariev_bronze.bronze_sessions 
+        WHERE date_start <= current_timestamp()
+        ORDER BY date_start DESC
+    """
     
-    date = get_utc_now_iso()
-    s_resp = http.get(f"{BASE_URL}/sessions", params={"meeting_key": meeting_key, "date_end<":date})
-    s_resp.raise_for_status()
-    sessions = s_resp.json()
-    
-    sessions.sort(key=lambda x: x['session_key'], reverse=True)
-    
-    session_key = sessions[0]['session_key']
-    for s in sessions:
-        if "Race" in s['session_name']:
-            session_key = s['session_key']
-            break
-            
-    return meeting_key, session_key
+    target = spark.sql("""
+        SELECT meeting_key, session_key 
+        FROM dbr_dev.tokariev_bronze.bronze_sessions 
+        WHERE date_start <= current_timestamp()
+        ORDER BY date_start DESC
+        LIMIT 1
+    """).collect()
 
-def fetch_with_retry(url, params, retries=10):
-    """Iterative approach to handle 404s or network blips."""
-    for i in range(retries):
-        try:
-            response = http.get(url, params=params, timeout=15)
-            if response.status_code == 200:
-                return response.json()
-            elif response.status_code == 404:
-                print(f"  [404] No data found for {url}. Retrying with shifted params...")
-                # If meeting_key didn't work, we decrement and try the previous one
-                if "meeting_key" in params:
-                    params["meeting_key"] -= 1
-                if "session_key" in params:
-                    params["session_key"] -= 1
-            else:
-                print(f"  [Error] Status {response.status_code}")
-        except Exception as e:
-            print(f"  [Attempt {i+1}] Connection error: {e}")
-        
-        time.sleep(1) # Small backoff
-    return None
+    print(target)
+    # if not target:
+    #     return None, None
+    rows = spark.sql(query).collect()
+    return [(row['meeting_key'], row['session_key']) for row in rows]
 
-def save_to_volume(data, endpoint, m_key, s_key, volume_path):
-    """Saves the JSON to the Unity Catalog Volume path."""
-    folder_path = f"{VOLUME_PATH}/{endpoint}/m_{m_key}/s_{s_key}"
-    os.makedirs(folder_path, exist_ok=True)
+def fetch_and_save(endpoint, m_key, s_key):
+    """
+    Fetches data and saves to Volume. 
+    Returns: (Success Boolean, Status Code)
+    """
+    params = {"meeting_key": m_key} if endpoint in ["sessions", "championship_drivers", "championship_teams", "meetings"] else {"session_key": s_key}
     
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    file_path = f"{folder_path}/{endpoint}.json"
-    
-    with open(file_path, "w") as f:
-        json.dump(data, f)
-    
-    return file_path
-
-def run_ingestion(endpoints, base_url, volume_path):
+    print(f"  Fetching {endpoint} for Session {s_key}...")
     try:
-        meeting_key, session_key = get_latest_keys()
-        print(f"Targeting Meeting: {meeting_key} | Session: {session_key}")
-        print("-" * 30)
+        response = requests.get(f"{BASE_URL}/{endpoint}", params=params, timeout=20)
         
-        for endpoint in endpoints:
-            print(f"Processing: {endpoint}...")
-            
-            if endpoint in ["sessions", "championship_drivers", "championship_teams", "meetings"]:
-                params = {"meeting_key": meeting_key}
-            else:
-                params = {"session_key": session_key}
+        if response.status_code == 200:
+            data = response.json()
+            if data:
+                folder_path = f"{VOLUME_PATH}/{endpoint}/m_{m_key}/s_{s_key}"
+                os.makedirs(folder_path, exist_ok=True)
+                file_path = f"{folder_path}/{endpoint}.json"
                 
-            data = fetch_with_retry(f"{base_url}/{endpoint}", params)
+                with open(file_path, "w") as f:
+                    json.dump(data, f)
+                return True, 200
+            return False, 204 # No content but valid request
             
-            if data and len(data) > 0:
-                saved_path = save_to_volume(data, endpoint, meeting_key, session_key, volume_path)
-                print(f"  [Success] Saved {len(data)} records to: {saved_path}")
-            else:
-                print(f"  [Skipped] No data retrieved for {endpoint}")
-                
+        return False, response.status_code
     except Exception as e:
-        print(f"Critical Failure in Ingestion: {e}")
+        print(f"    Error: {e}")
+        return False, 500
 
+def run_ingestion(ENDPOINTS, VOLUME_PATH, RATE_LIMIT_SLEEP):
+    # Get the last 5 sessions to allow for fallback
+    sessions = get_target_session()
+    
+    if not sessions:
+        print("No active or past sessions found.")
+        return
+    print(sessions)
+    for endpoint in ENDPOINTS:
+        success = False
+        
+        # Retry logic: Try current session, if 404, try previous
+        for m_key, s_key in sessions:
+            time.sleep(RATE_LIMIT_SLEEP)
+            
+            is_ok, status = fetch_and_save(endpoint, m_key, s_key)
+            
+            if is_ok:
+                print(f"    [Success] Saved {endpoint} for Session {s_key}")
+                success = True
+                break # Exit the session retry loop for this endpoint
+            
+            elif status == 404:
+                print(f"    [404 Not Found] Session {s_key} has no data for {endpoint}. Trying previous session...")
+                continue # Go to the next session in the list
+                
+            else:
+                print(f"    [Failed] Status {status} for {endpoint}. Skipping this endpoint.")
+                break 
+
+        if not success:
+            print(f"    [Final Notice] Could not ingest {endpoint} after checking multiple sessions.")
 
