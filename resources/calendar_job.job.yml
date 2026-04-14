@@ -1,0 +1,30 @@
+resources:
+  jobs:
+    calendar_job:
+      name: calendar_job
+
+      trigger:
+        periodic:
+          interval: 31
+          unit: DAYS
+
+      #email_notifications:
+      #  on_failure:
+      #    - your_email@example.com
+
+
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: schema
+          default: ${var.schema}
+
+      tasks:
+        - task_key: get_sessions_and_meetings
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.formula_one_calendar_etl.id}
+
+
+
+      
+

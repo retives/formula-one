@@ -2,13 +2,11 @@ bundle:
   name: formula_one
   uuid: 75f3984d-9bc7-410e-9590-f9a8ca0ee119
 
-sync:
-  include:
-    - resources/*.yml
-  exclude:
-    - .idea/**
-    - .vscode/**
-    - .git/**
+
+include:
+  - resources/*.yml
+  - resources/*/*.yml
+
 
 variables:
   catalog:
@@ -23,7 +21,7 @@ targets:
     default: true
     workspace:
       host: https://adb-7405605185991044.4.azuredatabricks.net
-      root_path: /Workspace/Users/tr3e1t0ry@softserve.academy/.bundle/${bundle.name}/${bundle.target}
+      root_path: ~/Workspace/Users/tr3e1t0ry@softserve.academy/.bundle/${bundle.name}/${bundle.target}
     variables:
       catalog: dbr_dev
       schema: tokariev_bronze

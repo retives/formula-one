@@ -1,0 +1,51 @@
+# A sample job for formula_one.
+
+resources:
+  jobs:
+    passive_job:
+      name: passive_job
+
+      trigger:
+        # Run this job every day, exactly one day from the last run; see https://docs.databricks.com/api/workspace/jobs/create#trigger
+        periodic:
+          interval: 1
+          unit: DAYS
+
+      #email_notifications:
+      #  on_failure:
+      #    - your_email@example.com
+
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: schema
+          default: ${var.schema}
+
+      job_clusters:
+        - job_cluster_key: job_cluster
+          new_cluster:
+            spark_version: "17.3.x-scala2.13"
+            node_type_id: "Standard_F4"
+            num_workers: 0
+            data_security_mode: "SINGLE_USER"
+            spark_conf:
+              "spark.databricks.cluster.profile": "singleNode"
+              "spark.master": "local[*]"
+            custom_tags:
+              "ResourceClass": "SingleNode"
+
+      tasks:
+        - task_key: data_load
+          job_cluster_key: job_cluster
+          spark_python_task:
+            python_file: "../src/formula_one_etl/transformations/bronze/load_passive_data.py"
+
+
+        - task_key: passive_ingestion
+          depends_on: 
+            - task_key: data_load
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.formula_one_passive_etl.id}   
+
+
+
