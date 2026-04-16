@@ -1,0 +1,24 @@
+resources:
+  pipelines:
+    formula_one_silver_etl:
+      name: formula_one_silver_etl
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+      root_path: "../../src/formula_one_etl"
+
+      libraries:
+        - file:
+            path: "../../src/formula_one_etl/transformations/silver/silver_data.py"
+      # environment:
+      #   dependencies:
+      #     - --editable .
+
+      clusters:
+        - label: "default"
+          node_type_id: "Standard_F4"
+          num_workers: 0
+          spark_conf:
+            "spark.databricks.cluster.profile": "singleNode"
+            "spark.master": "local[*]"
+          custom_tags:
+            "ResourceClass": "SingleNode"

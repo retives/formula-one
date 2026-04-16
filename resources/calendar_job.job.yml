@@ -23,7 +23,7 @@ resources:
         - task_key: get_sessions_and_meetings
           pipeline_task:
             pipeline_id: ${resources.pipelines.formula_one_calendar_etl.id}
-
+        
 
 
       
