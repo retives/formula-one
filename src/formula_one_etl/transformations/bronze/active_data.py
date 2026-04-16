@@ -5,7 +5,7 @@ from transformations.utils.schemas import *
     # schema=laps_schema
 )
 def bronze_laps_duration():
-    return spark.read.format("json").load("/Volumes/dbr_dev/tokariev_raw/openf1_data/overtakes/*/*/*.json")
+    return spark.read.format("json").load("/Volumes/dbr_dev/tokariev_raw/openf1_data/laps/*/*/*.json")
 
 @dp.table(
     name="dbr_dev.tokariev_bronze.bronze_overtakes",
@@ -42,6 +42,5 @@ def bronze_race_control():
 )
 def bronze_():
     return spark.read.format("json").load("/Volumes/dbr_dev/tokariev_raw/openf1_data/position/*/*/*.json")
-
 
 
