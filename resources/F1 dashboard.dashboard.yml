@@ -1,0 +1,7 @@
+resources:
+  dashboards:
+    F1_dashboard:
+      display_name: F1 dashboard
+      file_path: ../src/F1 dashboard.lvdash.json
+      warehouse_id: a1f04664c7fcffa4
+      dataset_catalog: dbr_dev
