@@ -1,0 +1,815 @@
+{
+  "datasets": [
+    {
+      "displayName": "Gold Overtakes Enriched",
+      "name": "gold_overtakes",
+      "queryLines": [
+        "SELECT\n",
+        "  o.driver_number,\n",
+        "  o.overtakes_count,\n",
+        "  d.full_name,\n",
+        "  d.name_acronym,\n",
+        "  d.team_name,\n",
+        "  d.team_colour\n",
+        "FROM\n",
+        "  dbr_dev.tokariev_gold.gold_overtakes_driver o\n",
+        "    JOIN (\n",
+        "      SELECT DISTINCT\n",
+        "        driver_number,\n",
+        "        full_name,\n",
+        "        name_acronym,\n",
+        "        team_name,\n",
+        "        team_colour\n",
+        "      FROM\n",
+        "        dbr_dev.tokariev_gold.gold_drivers\n",
+        "    ) d\n",
+        "      ON o.driver_number = d.driver_number"
+      ]
+    },
+    {
+      "displayName": "Gold Driver Laps",
+      "name": "gold_laps",
+      "queryLines": [
+        "SELECT\n",
+        "  l.driver_number,\n",
+        "  l.lap_duration,\n",
+        "  l.duration_sector_1,\n",
+        "  l.duration_sector_2,\n",
+        "  l.duration_sector_3,\n",
+        "  l.i1_speed,\n",
+        "  l.i2_speed,\n",
+        "  l.st_speed,\n",
+        "  l.is_pit_out_lap,\n",
+        "  l.lap_number,\n",
+        "  l.meeting_key,\n",
+        "  l.session_key,\n",
+        "  d.full_name,\n",
+        "  d.name_acronym,\n",
+        "  d.team_name,\n",
+        "  d.team_colour\n",
+        "FROM\n",
+        "  dbr_dev.tokariev_bronze.bronze_laps_duration l\n",
+        "    JOIN (\n",
+        "      SELECT DISTINCT\n",
+        "        driver_number,\n",
+        "        full_name,\n",
+        "        name_acronym,\n",
+        "        team_name,\n",
+        "        team_colour\n",
+        "      FROM\n",
+        "        dbr_dev.tokariev_bronze.bronze_drivers\n",
+        "    ) d\n",
+        "      ON l.driver_number = d.driver_number"
+      ]
+    },
+    {
+      "displayName": "Team Championship",
+      "name": "team_championship",
+      "queryLines": [
+        "SELECT\n",
+        "  *\n",
+        "FROM\n",
+        "  dbr_dev.tokariev_gold.gold_team_championship"
+      ]
+    },
+    {
+      "config": {
+        "dimensions": [
+          {
+            "expr": "broadcast_name",
+            "name": "broadcast_name"
+          },
+          {
+            "expr": "country_code",
+            "name": "country_code"
+          },
+          {
+            "expr": "driver_number",
+            "name": "driver_number"
+          },
+          {
+            "expr": "first_name",
+            "name": "first_name"
+          },
+          {
+            "expr": "full_name",
+            "name": "full_name"
+          },
+          {
+            "expr": "headshot_url",
+            "name": "headshot_url"
+          },
+          {
+            "expr": "last_name",
+            "name": "last_name"
+          },
+          {
+            "expr": "meeting_key",
+            "name": "meeting_key"
+          },
+          {
+            "expr": "name_acronym",
+            "name": "name_acronym"
+          },
+          {
+            "expr": "session_key",
+            "name": "session_key"
+          },
+          {
+            "expr": "team_colour",
+            "name": "team_colour"
+          },
+          {
+            "expr": "team_name",
+            "name": "team_name"
+          }
+        ],
+        "measures": [
+          {
+            "displayName": "Count",
+            "expr": "COUNT(*)",
+            "name": "count"
+          }
+        ],
+        "source": "dbr_dev.tokariev_gold.gold_drivers",
+        "version": 1.1
+      },
+      "displayName": "Gold Drivers",
+      "name": "gold_drivers"
+    },
+    {
+      "config": {
+        "dimensions": [
+          {
+            "expr": "full_name",
+            "name": "full_name"
+          },
+          {
+            "expr": "name_acronym",
+            "name": "name_acronym"
+          },
+          {
+            "expr": "team_name",
+            "name": "team_name"
+          },
+          {
+            "expr": "team_colour",
+            "name": "team_colour"
+          },
+          {
+            "expr": "meeting_key",
+            "name": "meeting_key"
+          },
+          {
+            "expr": "points_count",
+            "name": "points_count"
+          },
+          {
+            "expr": "points_gained",
+            "name": "points_gained"
+          },
+          {
+            "expr": "position_change",
+            "name": "position_change"
+          }
+        ],
+        "measures": [
+          {
+            "displayName": "Count",
+            "expr": "COUNT(*)",
+            "name": "count"
+          }
+        ],
+        "source": "dbr_dev.tokariev_gold.gold_championship_standings",
+        "version": 1.1
+      },
+      "displayName": "Gold Championship Standings",
+      "name": "championship_standings"
+    }
+  ],
+  "pages": [
+    {
+      "displayName": "Championship Standings",
+      "layout": [
+        {
+          "position": {
+            "height": 3,
+            "width": 4,
+            "x": 0,
+            "y": 0
+          },
+          "widget": {
+            "name": "counter_leader",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "championship_standings",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "expression": "MAX(`points_count`)",
+                      "name": "max(points_count)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "value": {
+                  "displayName": "Leader Points",
+                  "fieldName": "max(points_count)"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Race Leader Points"
+              },
+              "version": 2,
+              "widgetType": "counter"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 3,
+            "width": 4,
+            "x": 4,
+            "y": 0
+          },
+          "widget": {
+            "name": "counter_overtakes",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "gold_overtakes",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "expression": "SUM(`overtakes_count`)",
+                      "name": "sum(overtakes_count)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "value": {
+                  "displayName": "Total Overtakes",
+                  "fieldName": "sum(overtakes_count)"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Total Overtakes"
+              },
+              "version": 2,
+              "widgetType": "counter"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 3,
+            "width": 4,
+            "x": 8,
+            "y": 0
+          },
+          "widget": {
+            "name": "counter_drivers",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "gold_drivers",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "expression": "COUNT(DISTINCT `driver_number`)",
+                      "name": "countdistinct(driver_number)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "value": {
+                  "displayName": "Drivers",
+                  "fieldName": "countdistinct(driver_number)"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Drivers on Grid"
+              },
+              "version": 2,
+              "widgetType": "counter"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 8,
+            "width": 6,
+            "x": 0,
+            "y": 3
+          },
+          "widget": {
+            "name": "driver_points",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "championship_standings",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "expression": "`team_name`",
+                      "name": "team_name"
+                    },
+                    {
+                      "expression": "`name_acronym`",
+                      "name": "name_acronym"
+                    },
+                    {
+                      "expression": "MAX(`points_count`)",
+                      "name": "max(points_count)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "color": {
+                  "displayName": "Team",
+                  "fieldName": "team_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                },
+                "x": {
+                  "displayName": "Driver",
+                  "fieldName": "name_acronym",
+                  "scale": {
+                    "sort": {
+                      "by": "y-reversed"
+                    },
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "displayName": "Points",
+                  "fieldName": "max(points_count)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Driver Championship Points"
+              },
+              "version": 3,
+              "widgetType": "bar"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 8,
+            "width": 6,
+            "x": 6,
+            "y": 3
+          },
+          "widget": {
+            "name": "team_points",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "team_championship",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "expression": "`team_name`",
+                      "name": "team_name"
+                    },
+                    {
+                      "expression": "MAX(`points_current`)",
+                      "name": "max(points_current)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "color": {
+                  "displayName": "Team",
+                  "fieldName": "team_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                },
+                "x": {
+                  "displayName": "Team",
+                  "fieldName": "team_name",
+                  "scale": {
+                    "sort": {
+                      "by": "y-reversed"
+                    },
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "displayName": "Points",
+                  "fieldName": "max(points_current)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Constructor Standings"
+              },
+              "version": 3,
+              "widgetType": "bar"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 9,
+            "width": 12,
+            "x": 0,
+            "y": 11
+          },
+          "widget": {
+            "name": "standings_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "championship_standings",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "expression": "`name_acronym`",
+                      "name": "name_acronym"
+                    },
+                    {
+                      "expression": "`full_name`",
+                      "name": "full_name"
+                    },
+                    {
+                      "expression": "`team_name`",
+                      "name": "team_name"
+                    },
+                    {
+                      "expression": "MAX(`points_count`)",
+                      "name": "max(points_count)"
+                    },
+                    {
+                      "expression": "`points_gained`",
+                      "name": "points_gained"
+                    },
+                    {
+                      "expression": "`position_change`",
+                      "name": "position_change"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "columns": [
+                  {
+                    "displayName": "Driver",
+                    "fieldName": "name_acronym"
+                  },
+                  {
+                    "displayName": "Full Name",
+                    "fieldName": "full_name"
+                  },
+                  {
+                    "displayName": "Team",
+                    "fieldName": "team_name"
+                  },
+                  {
+                    "displayName": "Points",
+                    "fieldName": "max(points_count)"
+                  },
+                  {
+                    "displayName": "Points Gained",
+                    "fieldName": "points_gained"
+                  },
+                  {
+                    "displayName": "Position Change",
+                    "fieldName": "position_change"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Driver Standings Detail"
+              },
+              "rowsPerPage": 25,
+              "version": 2,
+              "widgetType": "table"
+            }
+          }
+        }
+      ],
+      "layoutVersion": "GRID_V1",
+      "name": "championship",
+      "pageType": "PAGE_TYPE_CANVAS"
+    },
+    {
+      "displayName": "Race Analysis",
+      "layout": [
+        {
+          "position": {
+            "height": 8,
+            "width": 6,
+            "x": 0,
+            "y": 0
+          },
+          "widget": {
+            "name": "overtakes_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "gold_overtakes",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "expression": "`team_name`",
+                      "name": "team_name"
+                    },
+                    {
+                      "expression": "`name_acronym`",
+                      "name": "name_acronym"
+                    },
+                    {
+                      "expression": "MAX(`overtakes_count`)",
+                      "name": "max(overtakes_count)"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "color": {
+                  "displayName": "Team",
+                  "fieldName": "team_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                },
+                "x": {
+                  "displayName": "Driver",
+                  "fieldName": "name_acronym",
+                  "scale": {
+                    "sort": {
+                      "by": "y-reversed"
+                    },
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "displayName": "Overtakes",
+                  "fieldName": "max(overtakes_count)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Overtakes by Driver"
+              },
+              "version": 3,
+              "widgetType": "bar"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 8,
+            "width": 6,
+            "x": 6,
+            "y": 0
+          },
+          "widget": {
+            "name": "fastest_lap",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "gold_laps",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "expression": "`team_name`",
+                      "name": "team_name"
+                    },
+                    {
+                      "expression": "`name_acronym`",
+                      "name": "name_acronym"
+                    },
+                    {
+                      "expression": "MIN(`lap_duration`)",
+                      "name": "min(lap_duration)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`is_pit_out_lap` IN (false)"
+                    },
+                    {
+                      "expression": "`lap_duration` IS NOT NULL"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "color": {
+                  "displayName": "Team",
+                  "fieldName": "team_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                },
+                "x": {
+                  "displayName": "Driver",
+                  "fieldName": "name_acronym",
+                  "scale": {
+                    "sort": {
+                      "by": "y"
+                    },
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "displayName": "Fastest Lap (s)",
+                  "fieldName": "min(lap_duration)",
+                  "format": {
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "places": 2,
+                      "type": "exact"
+                    },
+                    "type": "number-plain"
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Fastest Lap by Driver"
+              },
+              "version": 3,
+              "widgetType": "bar"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 8,
+            "width": 12,
+            "x": 0,
+            "y": 8
+          },
+          "widget": {
+            "name": "avg_lap",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "gold_laps",
+                  "disaggregated": false,
+                  "fields": [
+                    {
+                      "expression": "`team_name`",
+                      "name": "team_name"
+                    },
+                    {
+                      "expression": "`name_acronym`",
+                      "name": "name_acronym"
+                    },
+                    {
+                      "expression": "AVG(`lap_duration`)",
+                      "name": "avg(lap_duration)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`is_pit_out_lap` IN (false)"
+                    },
+                    {
+                      "expression": "`lap_duration` IS NOT NULL"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "color": {
+                  "displayName": "Team",
+                  "fieldName": "team_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                },
+                "x": {
+                  "displayName": "Driver",
+                  "fieldName": "name_acronym",
+                  "scale": {
+                    "sort": {
+                      "by": "y"
+                    },
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "displayName": "Avg Lap Time (s)",
+                  "fieldName": "avg(lap_duration)",
+                  "format": {
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "places": 2,
+                      "type": "exact"
+                    },
+                    "type": "number-plain"
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Average Lap Time by Driver"
+              },
+              "version": 3,
+              "widgetType": "bar"
+            }
+          }
+        }
+      ],
+      "layoutVersion": "GRID_V1",
+      "name": "race_analysis",
+      "pageType": "PAGE_TYPE_CANVAS"
+    }
+  ],
+  "uiSettings": {
+    "applyModeEnabled": false,
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    }
+  }
+}

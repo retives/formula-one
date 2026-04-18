@@ -1,0 +1,6 @@
+resources:
+  dashboards:
+    f1_dashboard:
+      display_name: "F1 dashboard"
+      warehouse_id: a1f04664c7fcffa4
+      file_path: ../src/f1_dashboard.lvdash.json
