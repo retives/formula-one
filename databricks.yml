@@ -12,8 +12,6 @@ variables:
     description: The schema to use
 
 permissions:
-  - service_principal_name: ${var.sp_id}
-    level: CAN_MANAGE
   - user_name: tr3e1t0ry@softserve.academy
     level: CAN_MANAGE
 
