@@ -35,22 +35,29 @@ resources:
           default: ${var.schema}
 
       tasks:
-        - task_key: data_load
+        - task_key: active_data_load
           job_cluster_key: job_cluster
           spark_python_task:
             python_file: "../src/formula_one_etl/transformations/bronze/load_active_data.py"
 
+        - task_key: passive_data_load
+          job_cluster_key: job_cluster
+          spark_python_task:
+            python_file: "../src/formula_one_etl/transformations/bronze/load_passive_data.py"
+
+        - task_key: security
+          job_cluster_key: job_cluster
+          spark_python_task:
+            python_file: "../src/formula_one_etl/transformations/governance/security.py"
+            
+
         - task_key: active_ingestion
           depends_on: 
-            - task_key: data_load
+            - task_key: active_data_load
+            - task_key: passive_data_load
           pipeline_task:
-            pipeline_id: ${resources.pipelines.formula_one_active_etl.id}   
-        
-        - task_key: silver_pipeline
-          depends_on: 
-            - task_key: active_ingestion
-          pipeline_task:
-            pipeline_id: ${resources.pipelines.formula_one_silver_etl.id}   
+            pipeline_id: ${resources.pipelines.formula_one_etl.id}   
+         
 
 
       
