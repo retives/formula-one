@@ -1,20 +1,19 @@
-# The main pipeline for formula_one
-
+# This pipeline runs actively during the race
 resources:
   pipelines:
-    formula_one_passive_etl:
-      name: formula_one_passive_etl
+    formula_one_active_etl:
+      name: formula_one_active_etl
       catalog: ${var.catalog}
       schema: ${var.schema}
       root_path: "../../src/formula_one_etl"
 
       libraries:
         - file:
-            path: "../../src/formula_one_etl/transformations/bronze/passive_data.py"
-
-      # environment:
-      #   dependencies:
-      #     - --editable .
+            path: "../../src/formula_one_etl/transformations/bronze/active_data.py"
+        - file:
+            path: "../../src/formula_one_etl/transformations/silver/silver_data.py"
+        - file:
+            path: "../../src/formula_one_etl/transformations/gold/gold.py"
 
       clusters:
         - label: "default"

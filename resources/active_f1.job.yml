@@ -45,12 +45,7 @@ resources:
             - task_key: data_load
           pipeline_task:
             pipeline_id: ${resources.pipelines.formula_one_active_etl.id}   
-        
-        - task_key: silver_pipeline
-          depends_on: 
-            - task_key: active_ingestion
-          pipeline_task:
-            pipeline_id: ${resources.pipelines.formula_one_silver_etl.id}   
+         
 
 
       
