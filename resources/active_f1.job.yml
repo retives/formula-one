@@ -35,18 +35,29 @@ resources:
           default: ${var.schema}
 
       tasks:
+        - task_key: calendar
+          job_cluster_key: job_cluster
+          spark_python_task:
+            python_file: "../src/formula_one_etl/transformations/bronze/bronze_calendar.py"
+
         - task_key: active_data_load
           job_cluster_key: job_cluster
+          depends_on: 
+            - task_key: calendar
           spark_python_task:
             python_file: "../src/formula_one_etl/transformations/bronze/load_active_data.py"
 
         - task_key: passive_data_load
           job_cluster_key: job_cluster
+          depends_on: 
+            - task_key: calendar
           spark_python_task:
             python_file: "../src/formula_one_etl/transformations/bronze/load_passive_data.py"
 
         - task_key: security
           job_cluster_key: job_cluster
+          depends_on: 
+            - task_key: calendar
           spark_python_task:
             python_file: "../src/formula_one_etl/transformations/governance/security.py"
             
@@ -55,6 +66,7 @@ resources:
           depends_on: 
             - task_key: active_data_load
             - task_key: passive_data_load
+            - task_key: security
           pipeline_task:
             pipeline_id: ${resources.pipelines.formula_one_etl.id}   
          
