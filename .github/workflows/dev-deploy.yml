@@ -18,9 +18,7 @@ jobs:
     environment: DEV
     env:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
-      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
-      DATABRICKS_AUTH_TYPE: "oauth-m2m"
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
@@ -28,7 +26,7 @@ jobs:
       - name: Validate and Deploy to DEV
         run: |
           databricks bundle validate -t dev
-          databricks bundle deploy -t dev --var sp_id=${{ secrets.DATABRICKS_CLIENT_ID }} --auto-approve
+          databricks bundle deploy -t dev --auto-approve
 
   # --- TEST DEPLOYMENT (Triggered on Merge to Main) ---
   deploy-test:
@@ -37,9 +35,7 @@ jobs:
     environment: TEST
     env:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
-      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
-      DATABRICKS_AUTH_TYPE: "oauth-m2m"
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
@@ -47,4 +43,4 @@ jobs:
       - name: Validate and Deploy to TEST
         run: |
           databricks bundle validate -t test
-          databricks bundle deploy -t test --var sp_id=${{ secrets.DATABRICKS_CLIENT_ID }} --auto-approve
+          databricks bundle deploy -t test --auto-approve
