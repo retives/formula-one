@@ -1,6 +1,9 @@
 bundle:
   name: formula_one
   uuid: 75f3984d-9bc7-410e-9590-f9a8ca0ee119
+  
+run_as:
+  user_name: tr3e1t0ry@softserve.academy
 
 variables:
   sp_id:
