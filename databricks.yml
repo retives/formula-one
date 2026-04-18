@@ -1,5 +1,5 @@
 permissions:
-  - service_principal_name: ${{ secrets.DATABRICKS_CLIENT_ID }}
+  - service_principal_name: "${{ secrets.DATABRICKS_CLIENT_ID }}"
     level: CAN_MANAGE
   - group_name: "admins" 
     level: CAN_MANAGE
