@@ -21,7 +21,6 @@ jobs:
       DATABRICKS_HOST: ${{ secrets.DEV_DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ secrets.DEV_DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_CLIENT_SECRET }}
-      DATABRICKS_AUTH_TYPE: oauth-m2m
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
@@ -40,7 +39,6 @@ jobs:
       DATABRICKS_HOST: ${{ secrets.TEST_DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ secrets.TEST_DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.TEST_DATABRICKS_CLIENT_SECRET }}
-      DATABRICKS_AUTH_TYPE: oauth-m2m
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
