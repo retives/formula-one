@@ -28,7 +28,7 @@ jobs:
       - name: Validate and Deploy to DEV
         run: |
           databricks bundle validate -t dev
-          databricks bundle deploy -t dev
+          databricks bundle deploy -t dev -v sp_id=${{ secrets.DATABRICKS_CLIENT_ID }}
 
   # --- TEST DEPLOYMENT (Triggered on Merge to Main) ---
   deploy-test:
@@ -47,4 +47,4 @@ jobs:
       - name: Validate and Deploy to TEST
         run: |
           databricks bundle validate -t test
-          databricks bundle deploy -t test
+          databricks bundle deploy -t test -v sp_id=${{ secrets.DATABRICKS_CLIENT_ID }}
