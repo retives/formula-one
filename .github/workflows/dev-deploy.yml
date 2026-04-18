@@ -16,11 +16,12 @@ jobs:
   deploy-dev:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    environment: dev
+    environment: DEV
     env:
       DATABRICKS_HOST: ${{ secrets.DEV_DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ secrets.DEV_DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_CLIENT_SECRET }}
+      DATABRICKS_AUTH_TYPE: oauth-m2m
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
@@ -34,11 +35,12 @@ jobs:
   deploy-test:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
-    environment: test
+    environment: TEST
     env:
       DATABRICKS_HOST: ${{ secrets.TEST_DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ secrets.TEST_DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.TEST_DATABRICKS_CLIENT_SECRET }}
+      DATABRICKS_AUTH_TYPE: oauth-m2m
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
