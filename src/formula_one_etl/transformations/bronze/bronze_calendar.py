@@ -7,7 +7,10 @@ from pyspark import pipelines as dp
 import pandas as pd
 from pyspark.sql.functions import to_timestamp, col
 
-@dp.table(name="dbr_dev.tokariev_bronze.bronze_meetings")
+@dp.table(
+    name="dbr_dev.tokariev_bronze.bronze_meetings",
+    row_filter="ROW FILTER dbr_dev.tokariev_bronze.filter_current_year ON (year)"
+)
 def bronze_meetings():
     current_year = datetime.now().year
     url = f"https://api.openf1.org/v1/meetings?year={current_year}"
@@ -22,7 +25,10 @@ def bronze_meetings():
         .withColumn("date_end", to_timestamp(col("date_end")))
     return df
 
-@dp.table(name="dbr_dev.tokariev_bronze.bronze_sessions")
+@dp.table(
+    name="dbr_dev.tokariev_bronze.bronze_sessions",
+    row_filter="ROW FILTER dbr_dev.tokariev_bronze.filter_current_year ON (year)"
+)
 def bronze_sessions():
     current_year = datetime.now().year
     url = f"https://api.openf1.org/v1/sessions?year={current_year}&session_name=Race"

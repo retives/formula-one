@@ -5,12 +5,10 @@ import time
 from datetime import datetime, timezone
 from pyspark.sql import SparkSession
 
-# --- CONFIGURATION ---
-BASE_URL = "https://api.openf1.org/v1"
-VOLUME_PATH = "/Volumes/dbr_dev/tokariev_raw/openf1_data"
-RATE_LIMIT_SLEEP = 2.5
-
-
+# # --- CONFIGURATION ---
+# BASE_URL = "https://api.openf1.org/v1"
+# VOLUME_PATH = "/Volumes/dbr_dev/tokariev_raw/openf1_data"
+# RATE_LIMIT_SLEEP = 2.5
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -19,17 +17,18 @@ def get_target_session():
     Reads the calendar table and finds the session closest to 'now' 
     that has already started.
     """
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(timezone.utc)
     
     query = f"""
         SELECT meeting_key, session_key 
         FROM dbr_dev.tokariev_bronze.bronze_sessions 
-        WHERE date_start < '{now}'
+        WHERE YEAR(date_start) = {datetime.now(timezone.utc).year}
+        AND date_start < '{now}'
         ORDER BY date_start DESC
-        LIMIT 3
     """
 
     rows = spark.sql(query).collect()
+    
     return [(row['meeting_key'], row['session_key']) for row in rows]
 
 def fetch_and_save(endpoint, m_key, s_key):
@@ -60,7 +59,7 @@ def fetch_and_save(endpoint, m_key, s_key):
         print(f"    Error: {e}")
         return False, 500
 
-def run_ingestion(ENDPOINTS, VOLUME_PATH, RATE_LIMIT_SLEEP):
+def run_ingestion(ENDPOINTS, VOLUME_PATH, RATE_LIMIT_SLEEP, ):
     # Get the last 5 sessions to allow for fallback
     sessions = get_target_session()
     
@@ -69,7 +68,7 @@ def run_ingestion(ENDPOINTS, VOLUME_PATH, RATE_LIMIT_SLEEP):
         return
     print(sessions)
     for endpoint in ENDPOINTS:
-        # success = False
+        success = False
         
         # Retry logic: Try current session, if 404, try previous
         for m_key, s_key in sessions:
@@ -79,7 +78,7 @@ def run_ingestion(ENDPOINTS, VOLUME_PATH, RATE_LIMIT_SLEEP):
             
             if is_ok:
                 print(f"    [Success] Saved {endpoint} for Session {s_key}")
-                # success = True
+                success = True
 
             
             elif status == 404:
@@ -92,4 +91,3 @@ def run_ingestion(ENDPOINTS, VOLUME_PATH, RATE_LIMIT_SLEEP):
 
         if not success:
             print(f"    [Final Notice] Could not ingest {endpoint} after checking multiple sessions.")
-

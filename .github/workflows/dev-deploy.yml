@@ -1,13 +1,10 @@
-name: dev-deploy.yml
-on:
+name: Databricks Bundle Deployment
 
-  # push:
-  #   branches:
-  #     - "dev/*"
-  pull_request_review:
-    types: [edited, submitted]
-    branches:
-      - "main"
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -15,20 +12,38 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  # --- DEV DEPLOYMENT (Triggered on PRs to Main) ---
+  deploy-dev:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    environment: dev
     env:
-      DATABRICKS_HOST: https://adb-7405605185991044.4.azuredatabricks.net
-      DATABRICKS_CLIENT_ID: 0fbc6566-282b-47bf-9122-11f99addc705
-      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+      DATABRICKS_HOST: ${{ secrets.DEV_DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ secrets.DEV_DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.DEV_DATABRICKS_CLIENT_SECRET }}
     steps:
       - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      
+      - name: Validate and Deploy to DEV
+        run: |
+          databricks bundle validate -t dev
+          databricks bundle deploy -t dev
 
-      - name: Install CLI
-        uses: databricks/setup-cli@main
-
-      - run: databricks current-user me
-
-      - run: databricks bundle validate --target dev
-
-      - run: databricks pipelines deploy --target dev
+  # --- TEST DEPLOYMENT (Triggered on Merge to Main) ---
+  deploy-test:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: test
+    env:
+      DATABRICKS_HOST: ${{ secrets.TEST_DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ secrets.TEST_DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.TEST_DATABRICKS_CLIENT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      
+      - name: Validate and Deploy to TEST
+        run: |
+          databricks bundle validate -t test
+          databricks bundle deploy -t test
