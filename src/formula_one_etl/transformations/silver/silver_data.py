@@ -21,7 +21,7 @@ def driver_championship():
 
 @dp.table(
     name="dbr_dev.tokariev_silver.silver_team_championship",
-    schema=teams_championship_schema,
+    # schema=teams_championship_schema,
 )
 def team_championship():
     return cast_to_schema(
@@ -135,28 +135,28 @@ def weather():
 )
 def driver_standings():
     return spark.read.table("dbr_dev.tokariev_bronze.bronze_driver_championship").dropDuplicates()\
-        .join(spark.read.table("dbr_dev.tokariev_bronze.bronze_drivers").dropDuplicates().drop("meeting_key", "session_key"), "driver_number")
+        .join(spark.read.table("dbr_dev.tokariev_bronze.bronze_drivers").drop("meeting_key", "session_key"), "driver_number").dropDuplicates()
 
 @dp.table(
     name="dbr_dev.tokariev_silver.silver_driver_overtakes"
 )
 def driver_overtakes():
-    return spark.read.table("dbr_dev.tokariev_bronze.bronze_overtakes").withColumn("driver_number", col("overtaking_driver")).dropDuplicates()\
-        .join(spark.read.table("dbr_dev.tokariev_bronze.bronze_drivers").dropDuplicates().drop("meeting_key", "session_key"), "driver_number")
+    return spark.read.table("dbr_dev.tokariev_bronze.bronze_overtakes").withColumn("driver_number", col("overtaking_driver_number")).dropDuplicates()\
+        .join(spark.read.table("dbr_dev.tokariev_bronze.bronze_drivers").drop("meeting_key", "session_key"), "driver_number").dropDuplicates()
 
 @dp.table(
     name="dbr_dev.tokariev_silver.silver_driver_laps"
 )
 def driver_laps():
     return spark.read.table("dbr_dev.tokariev_bronze.bronze_laps_duration").dropDuplicates()\
-        .join(spark.read.table("dbr_dev.tokariev_bronze.bronze_drivers").dropDuplicates().drop("meeting_key", "session_key"), "driver_number")
+        .join(spark.read.table("dbr_dev.tokariev_bronze.bronze_drivers").drop("meeting_key", "session_key"), "driver_number").dropDuplicates()
 
 @dp.table(
     name="dbr_dev.tokariev_silver.silver_driver_pit_stops"
 )
 def driver_pit_stops():
     return spark.read.table("dbr_dev.tokariev_bronze.bronze_pit_stops").dropDuplicates()\
-        .join(spark.read.table("dbr_dev.tokariev_bronze.bronze_drivers").dropDuplicates().drop("meeting_key", "session_key"), "driver_number")
+        .join(spark.read.table("dbr_dev.tokariev_bronze.bronze_drivers").drop("meeting_key", "session_key"), "driver_number").dropDuplicates()
 
 
 
