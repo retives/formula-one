@@ -1,3 +1,9 @@
+permissions:
+  - service_principal_name: ${{ secrets.DATABRICKS_CLIENT_ID }}
+    level: CAN_MANAGE
+  - group_name: "admins" 
+    level: CAN_MANAGE
+
 bundle:
   name: formula_one
   uuid: 75f3984d-9bc7-410e-9590-f9a8ca0ee119
