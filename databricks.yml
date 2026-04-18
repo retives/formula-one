@@ -14,8 +14,6 @@ variables:
 permissions:
   - service_principal_name: ${var.sp_id}
     level: CAN_MANAGE
-  - group_name: "admins" 
-    level: CAN_MANAGE
 
 include:
   - resources/*.yml
@@ -28,7 +26,7 @@ targets:
     default: true
     workspace:
       host: https://adb-7405605185991044.4.azuredatabricks.net
-      root_path: ~/Workspace/Users/tr3e1t0ry@softserve.academy/.bundle/${bundle.name}/${bundle.target}
+      root_path: ~/.bundle/${bundle.name}/${bundle.target}
     variables:
       catalog: dbr_dev
       schema: tokariev_bronze
