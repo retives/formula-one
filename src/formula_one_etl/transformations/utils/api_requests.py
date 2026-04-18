@@ -21,24 +21,14 @@ def get_target_session():
     """
     now = datetime.now(timezone.utc).isoformat()
     
-    query = """
+    query = f"""
         SELECT meeting_key, session_key 
         FROM dbr_dev.tokariev_bronze.bronze_sessions 
-        WHERE date_start <= current_timestamp()
+        WHERE date_start < '{now}'
         ORDER BY date_start DESC
+        LIMIT 3
     """
-    
-    target = spark.sql("""
-        SELECT meeting_key, session_key 
-        FROM dbr_dev.tokariev_bronze.bronze_sessions 
-        WHERE date_start <= current_timestamp()
-        ORDER BY date_start DESC
-        LIMIT 1
-    """).collect()
 
-    print(target)
-    # if not target:
-    #     return None, None
     rows = spark.sql(query).collect()
     return [(row['meeting_key'], row['session_key']) for row in rows]
 
@@ -63,7 +53,7 @@ def fetch_and_save(endpoint, m_key, s_key):
                 with open(file_path, "w") as f:
                     json.dump(data, f)
                 return True, 200
-            return False, 204 # No content but valid request
+            return False, 204
             
         return False, response.status_code
     except Exception as e:
@@ -79,7 +69,7 @@ def run_ingestion(ENDPOINTS, VOLUME_PATH, RATE_LIMIT_SLEEP):
         return
     print(sessions)
     for endpoint in ENDPOINTS:
-        success = False
+        # success = False
         
         # Retry logic: Try current session, if 404, try previous
         for m_key, s_key in sessions:
@@ -89,8 +79,8 @@ def run_ingestion(ENDPOINTS, VOLUME_PATH, RATE_LIMIT_SLEEP):
             
             if is_ok:
                 print(f"    [Success] Saved {endpoint} for Session {s_key}")
-                success = True
-                break # Exit the session retry loop for this endpoint
+                # success = True
+
             
             elif status == 404:
                 print(f"    [404 Not Found] Session {s_key} has no data for {endpoint}. Trying previous session...")
