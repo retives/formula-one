@@ -10,8 +10,6 @@ resources:
 
       libraries:
         - file:
-            path: "../../src/formula_one_etl/transformations/bronze/bronze_calendar.py"
-        - file:
             path: "../../src/formula_one_etl/transformations/bronze/active_data.py"
         - file:
             path: "../../src/formula_one_etl/transformations/bronze/passive_data.py"

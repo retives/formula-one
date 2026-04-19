@@ -40,6 +40,8 @@ targets:
     variables:
       catalog: dbr_dev
       schema: tokariev_bronze
+    presets:
+      name_prefix: "[test] "
     permissions:
       - user_name: tr3e1t0ry@softserve.academy
         level: CAN_MANAGE
